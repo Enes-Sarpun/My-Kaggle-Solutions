@@ -37,21 +37,25 @@ Follow these steps to set up and run the project on your local machine:
 ```bash
 git clone [https://github.com/yourusername/cat-dog-classification.git](https://github.com/yourusername/cat-dog-classification.git)
 cd cat-dog-classification
+```
 
 **2. Install dependencies:**
 Install the required libraries using the requirements.txt file:
 ```bash
 pip install -r requirements.txt
+```
 
 **3. Data Preprocessing (Optional):**
 If you want to prepare your own dataset, run the cleaning script first:
 ```bash
 python clean2.py
+```
 
 **4. Train or Evaluate the Model:**
 Execute the main pipeline to start the training or evaluation process:
 ```bash
 python main.py
+```
 
 **Note:** You can load the pre-trained best_model.h5 or best_model_mobilnet.h5 weights directly using Keras/TensorFlow to make predictions on new, unseen images without retraining.
 
