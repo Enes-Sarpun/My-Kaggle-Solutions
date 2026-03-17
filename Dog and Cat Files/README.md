@@ -13,8 +13,8 @@ The models were trained and tested on a comprehensive dataset of cat and dog ima
 ![Cat Sample](Sample_Cat_Photos/cat_1.jpg)
 
 ### 🐶 Dog Example
-![Cat Sample](Sample_Dog_Photos/dog_0.jpg)
-![Cat Sample](Sample_Dog_Photos/dog_1.jpg)
+![Dog Sample](Sample_Dog_Photos/dog_0.jpg)
+![Dog Sample](Sample_Dog_Photos/dog_1.jpg)
 
 ## 🛠️ Project Structure & Files
 
