@@ -9,12 +9,12 @@ The models were trained and tested on a comprehensive dataset of cat and dog ima
 *Here are examples of the images the model classifies:*
 
 ### 🐱 Cat Example
-![Sample Cat Photos](cat_0.jpg) 
-![Sample Cat Photos](cat_1.jpg) 
+![Cat Sample](Sample_Cat_Photos/cat_0.jpg)
+![Cat Sample](Sample_Cat_Photos/cat_1.jpg)
 
 ### 🐶 Dog Example
-![Sample Dog Photos](dog_0.jpg) 
-![Sample Dog Photos](dog_1.jpg) 
+![Cat Sample](Sample_Dog_Photos/dog_0.jpg)
+![Cat Sample](Sample_Dog_Photos/dog_1.jpg)
 
 ## 🛠️ Project Structure & Files
 
