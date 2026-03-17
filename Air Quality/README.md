@@ -32,12 +32,12 @@ Thorough EDA was conducted to understand distributions, handle missing values, a
 ### Initial Correlation Matrix
 *Before feature engineering, we analyzed the base relationships between primary pollutants.*
 
-![Initial Correlation Matrix](correlation_matrix.jpg)
+![Initial Correlation Matrix](correlation_matrix.png)
 
 ### Engineered Correlation Matrix
 *After generating new features, we evaluated the correlation of our enriched dataset.*
 
-![Engineered Correlation Matrix](correlation_matrix_engineered.jpg)
+![Engineered Correlation Matrix](correlation_matrix_engineered.png)
 
 ## 🤖 Modeling
 The project compares standard regression models against a deep learning approach. The data was scaled using `StandardScaler` prior to training.
@@ -69,12 +69,12 @@ The Random Forest model highlighted that the engineered `Health_Risk_Score`, `PM
 ### Neural Network Training History
 The model converged smoothly, minimizing both Mean Squared Error (MSE) and Mean Absolute Error (MAE) across 100 epochs.
 
-![NN Training History](nn_training_history.jpg)
+![NN Training History](nn_training_history.png)
 
 ### Prediction vs Actual (Best Models)
 *Comparing the R² scores and prediction accuracy of the Random Forest model (R² = 0.9441) against the Neural Network (R² = 0.8626).*
 
-![Prediction vs Actual](prediction_vs_actual.jpg)
+![Prediction vs Actual](prediction_vs_actual.png)
 
 ## 💻 How to Run the Project
 
