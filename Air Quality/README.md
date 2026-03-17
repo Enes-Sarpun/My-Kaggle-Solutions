@@ -66,11 +66,6 @@ The Random Forest model highlighted that the engineered `Health_Risk_Score`, `PM
 
 ![Feature Importance](feature_importance.png)
 
-### Neural Network Training History
-The model converged smoothly, minimizing both Mean Squared Error (MSE) and Mean Absolute Error (MAE) across 100 epochs.
-
-![NN Training History](nn_training_history.png)
-
 ### Prediction vs Actual (Best Models)
 *Comparing the R² scores and prediction accuracy of the Random Forest model (R² = 0.9441) against the Neural Network (R² = 0.8626).*
 
