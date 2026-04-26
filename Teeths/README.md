@@ -13,7 +13,7 @@ This project trains models to classify dental images as either healthy or unheal
 
 | | |
 |---|---|
-| ![Healthy Teeth](sample_images/healthy.jpg) | ![Unhealthy Teeth](sample_images/unhealthy.jpg) |
+| ![Healthy Teeth](Sample_healthy/healthy.jpg) | ![Unhealthy Teeth](sample_images/unhealthy.jpg) |
 | *Healthy* | *Unhealthy* |
 
 ---
