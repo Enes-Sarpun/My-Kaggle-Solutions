@@ -139,7 +139,7 @@ class PretrainedModel:
         )
         return model
 
-    def train(self, train_ds, val_ds, epochs_stage1=5, epochs_stage2=15):
+    def train(self, train_ds, val_ds, epochs_stage1=15, epochs_stage2=45):
         # Stage 1: Only Classifier
         cb1 = [
             callbacks.ModelCheckpoint(str(self.best_model_path), save_best_only=True, monitor="val_accuracy"),
@@ -158,8 +158,8 @@ class PretrainedModel:
         print("\n--- Stage 2: Fine-tune ---")
         self.base_model.trainable = True
         self.model.compile(
-            optimizer=optimizers.AdamW(learning_rate=1e-5, weight_decay=1e-4),
-            loss=losses.BinaryCrossentropy(label_smoothing=0.1),
+            optimizer=optimizers.AdamW(learning_rate=1e-4, weight_decay=1e-4),
+            loss=losses.BinaryCrossentropy(label_smoothing=0.05),
             metrics=["accuracy"]
         )
         cb2 = [
