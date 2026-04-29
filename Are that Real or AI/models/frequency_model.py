@@ -118,8 +118,8 @@ class FrequencyModel:
 
         model = models.Model(inputs, outputs, name="frequency_stream")
         model.compile(
-            optimizer=optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-4),
-            loss=losses.BinaryCrossentropy(label_smoothing=0.1),
+            optimizer=optimizers.AdamW(learning_rate=1e-4, weight_decay=1e-4),
+            loss=losses.BinaryCrossentropy(label_smoothing=0.05),
             metrics=["accuracy"]
         )
         return model
@@ -145,7 +145,6 @@ class FrequencyModel:
             validation_data=val_ds,
             epochs=epochs,
             callbacks=cb,
-            class_weight=self.class_weights
         )
 
         best_val_acc = max(history.history["val_accuracy"])
@@ -160,6 +159,7 @@ if __name__ == "__main__":
     fm.compute_class_weights()
     train_ds, val_ds = fm.load_datasets()
     fm.train(train_ds, val_ds, epochs=20)
+
 
 
 # Finished.

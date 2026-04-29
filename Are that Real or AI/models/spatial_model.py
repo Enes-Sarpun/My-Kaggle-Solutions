@@ -18,7 +18,7 @@ class SpatialModel:
         self.project_root = Path(__file__).resolve().parent.parent
         self.best_model_path = self.project_root / "best_models" / "best_spatial_model.keras"
         self.best_model_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         self.base_model = EfficientNetV2S(
             weights="imagenet",
             include_top=False,
@@ -39,20 +39,30 @@ class SpatialModel:
         random.seed(seed)
         source = self._resolve_path(source_path)
 
+        if not source.exists():
+            raise FileNotFoundError(f"Source folder not found: '{source}'")
+
         for split in ["train", "val"]:
             for cls in ["ai", "real"]:
                 (target / split / cls).mkdir(parents=True, exist_ok=True)
 
-        mapping = {
-            "Ai_generated_dataset": "ai",
-            "real_dataset": "real"
-        }
+        mapping = {"AI": "ai", "Real": "real"}
+        valid_extensions = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
         for src_folder, cls_name in mapping.items():
-            all_images = []
-            for category in (source / src_folder).iterdir():
-                if category.is_dir():
-                    all_images.extend(list(category.glob("*.*")))
+            src_path = source / src_folder
+
+            if not src_path.exists():
+                raise FileNotFoundError(f"Folder not found: '{src_path}'")
+
+            all_images = [
+                p for p in src_path.iterdir()
+                if p.is_file() and p.suffix.lower() in valid_extensions
+            ]
+
+            if not all_images:
+                raise FileNotFoundError(f"No images found in '{src_path}'")
+
             random.shuffle(all_images)
             val_count = int(len(all_images) * val_ratio)
 
@@ -61,7 +71,7 @@ class SpatialModel:
             for img in all_images[:val_count]:
                 shutil.copy(img, target / "val" / cls_name / img.name)
 
-            print(f"'{cls_name}': {len(all_images) - val_count} train, {val_count} val")
+            print(f"'{cls_name}': {len(all_images) - val_count} train, {val_count} val (total: {len(all_images)})")
 
     def compute_class_weights(self, target_path="data_split"):
         train_path = self._resolve_path(target_path) / "train"
@@ -83,7 +93,7 @@ class SpatialModel:
 
     def load_datasets(self, target_path="data_split", batch_size=32):
         base_path = self._resolve_path(target_path)
-        
+
         train_ds = image_dataset_from_directory(
             str(base_path / "train"),
             image_size=self.input_shape[:2],
@@ -128,8 +138,8 @@ class SpatialModel:
 
         model = models.Model(inputs, outputs, name="spatial_stream")
         model.compile(
-            optimizer=optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-4),
-            loss=losses.BinaryCrossentropy(label_smoothing=0.1),
+            optimizer=optimizers.AdamW(learning_rate=1e-4, weight_decay=1e-4),
+            loss=losses.BinaryCrossentropy(label_smoothing=0.05),
             metrics=["accuracy"]
         )
         return model
@@ -153,6 +163,7 @@ class SpatialModel:
             class_weight=self.class_weights
         )
 
+        # Stage 2: Fine-tune
         print("\n--- Stage 2: Fine-tune ---")
         self.base_model.trainable = True
         self.model.compile(
@@ -189,12 +200,11 @@ class SpatialModel:
 if __name__ == "__main__":
     sm = SpatialModel()
     sm.model.summary()
-    
+
     sm.prepare_data()
     sm.compute_class_weights()
     train_ds, val_ds = sm.load_datasets()
     sm.train(train_ds, val_ds)
-
 
 
 # Finished.
