@@ -1,44 +1,23 @@
 from pathlib import Path
 import numpy as np
 import tensorflow as tf
+from frequency_model import FFTLayer
 from tensorflow.keras import layers, models, optimizers, losses, callbacks
 from tensorflow.keras.utils import image_dataset_from_directory
 from sklearn.utils.class_weight import compute_class_weight
 
 
-class FFTLayer(layers.Layer):
-    """RGB görseli FFT log-magnitude haritasına çevirir, per-image standardize eder."""
-
-    def call(self, inputs):
-        # RGB -> Grayscale
-        gray = tf.image.rgb_to_grayscale(inputs)
-        gray = tf.squeeze(gray, axis=-1)
-
-        # 2D FFT
-        gray_complex = tf.cast(gray, tf.complex64)
-        fft = tf.signal.fft2d(gray_complex)
-        fft_shifted = tf.signal.fftshift(fft, axes=[-2, -1])
-
-        # Log magnitude
-        magnitude = tf.abs(fft_shifted)
-        log_magnitude = tf.math.log(magnitude + 1.0)
-
-        # Per-image standardize (mean=0, std=1)
-        mean = tf.reduce_mean(log_magnitude, axis=[1, 2], keepdims=True)
-        std = tf.math.reduce_std(log_magnitude, axis=[1, 2], keepdims=True)
-        standardized = (log_magnitude - mean) / (std + 1e-6)
-
-        return tf.expand_dims(standardized, axis=-1)
-
-
-class FrequencyModel:
+class HybridModel:
     def __init__(self, input_shape=(224, 224, 3)):
         self.input_shape = input_shape
         self.class_names = ["ai", "real"]
         self.class_weights = None
         self.project_root = Path(__file__).resolve().parent.parent
-        self.best_model_path = self.project_root / "best_models" / "best_frequency_model.keras"
+        self.best_model_path = self.project_root / "best_models" / "best_hybrid_model.keras"
         self.best_model_path.parent.mkdir(parents=True, exist_ok=True)
+
+        self.spatial_model_path = self.project_root / "best_models" / "best_spatial_model.keras"
+        self.frequency_model_path = self.project_root / "best_models" / "best_frequency_model.keras"
 
         self.model = self.build_model()
 
@@ -91,43 +70,60 @@ class FrequencyModel:
 
         return train_ds, val_ds
 
+    def _load_pretrained(self, path, name_prefix):
+        full_model = tf.keras.models.load_model(str(path), custom_objects={"FFTLayer": FFTLayer} )
+
+        feature_layer = full_model.layers[-3].output  
+        
+        feature_extractor = models.Model(
+            inputs=full_model.input,
+            outputs=feature_layer,
+            name=name_prefix
+        )
+        
+        feature_extractor.trainable = False
+        for layer in feature_extractor.layers:
+            layer.trainable = False
+        
+        return feature_extractor
+
     def build_model(self):
-        inputs = layers.Input(shape=self.input_shape)
+        print("Loading spatial model...")
+        spatial_extractor = self._load_pretrained(
+            self.spatial_model_path, "spatial_features"
+        )
+        print(f"Spatial output shape: {spatial_extractor.output_shape}")
 
-        # FFT + per-image standardize
-        x = FFTLayer(name="fft_transform")(inputs)
+        print("Loading frequency model...")
+        frequency_extractor = self._load_pretrained(
+            self.frequency_model_path, "frequency_features"
+        )
+        print(f"Frequency output shape: {frequency_extractor.output_shape}")
 
-        # CNN Block 1 (NO BatchNorm/LayerNorm)
-        x = layers.Conv2D(32, 3, padding="same", activation="relu")(x)
-        x = layers.MaxPooling2D(2)(x)
+        inputs = layers.Input(shape=self.input_shape, name="image_input")
 
-        # CNN Block 2
-        x = layers.Conv2D(64, 3, padding="same", activation="relu")(x)
-        x = layers.MaxPooling2D(2)(x)
+        spatial_feat = spatial_extractor(inputs, training=False)
+        frequency_feat = frequency_extractor(inputs, training=False)
 
-        # CNN Block 3
-        x = layers.Conv2D(128, 3, padding="same", activation="relu")(x)
-        x = layers.MaxPooling2D(2)(x)
+        # Feature concatenation
+        merged = layers.Concatenate(name="fusion")([spatial_feat, frequency_feat])
 
-        # CNN Block 4 (biraz daha derinlik)
-        x = layers.Conv2D(128, 3, padding="same", activation="relu")(x)
-        x = layers.MaxPooling2D(2)(x)
-
-        # Classifier
-        x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dense(128, activation="relu")(x)
+        # Fusion classifier
+        x = layers.Dense(256, activation="relu")(merged)
         x = layers.Dropout(0.4)(x)
+        x = layers.Dense(64, activation="relu")(x)
+        x = layers.Dropout(0.3)(x)
         outputs = layers.Dense(1, activation="sigmoid")(x)
 
-        model = models.Model(inputs, outputs, name="frequency_stream")
+        model = models.Model(inputs, outputs, name="hybrid_model")
         model.compile(
-            optimizer=optimizers.AdamW(learning_rate=5e-4, weight_decay=1e-4),
+            optimizer=optimizers.AdamW(learning_rate=1e-3, weight_decay=1e-4),
             loss=losses.BinaryCrossentropy(label_smoothing=0.05),
             metrics=["accuracy"]
         )
         return model
 
-    def train(self, train_ds, val_ds, epochs=30):
+    def train(self, train_ds, val_ds, epochs=20):
         cb = [
             callbacks.ModelCheckpoint(
                 str(self.best_model_path),
@@ -135,14 +131,14 @@ class FrequencyModel:
                 monitor="val_accuracy"
             ),
             callbacks.EarlyStopping(
-                patience=8,
+                patience=6,
                 restore_best_weights=True,
                 monitor="val_accuracy"
             ),
             callbacks.ReduceLROnPlateau(factor=0.5, patience=3, monitor="val_loss")
         ]
 
-        print("\n--- Frequency Stream Training ---")
+        print("\n--- Hybrid Model Training ---")
         history = self.model.fit(
             train_ds,
             validation_data=val_ds,
@@ -157,12 +153,12 @@ class FrequencyModel:
 
 
 if __name__ == "__main__":
-    fm = FrequencyModel()
-    fm.model.summary()
+    hm = HybridModel()
+    hm.model.summary()
 
-    fm.compute_class_weights()
-    train_ds, val_ds = fm.load_datasets()
-    fm.train(train_ds, val_ds, epochs=30)
+    hm.compute_class_weights()
+    train_ds, val_ds = hm.load_datasets()
+    hm.train(train_ds, val_ds, epochs=20)
 
 
 

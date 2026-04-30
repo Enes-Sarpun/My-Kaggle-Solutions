@@ -1,21 +1,28 @@
-import tensorflow as tf
-import numpy as np
-from PIL import Image
+import sys
 from pathlib import Path
+import numpy as np
+import tensorflow as tf
+from PIL import Image
 
-project_root = Path(__file__).resolve().parent.parent  # veya Path.cwd()
-model_path = project_root / "best_models" / "best_spatial_model.keras"
-test_image_path = project_root / "test_image_gemini.png"  # dosya adına göre güncelle
+# FFTLayer'ı import et (custom_objects için lazım)
+sys.path.insert(0, str(Path(__file__).resolve().parent / "models"))
+from frequency_model import FFTLayer
 
-model = tf.keras.models.load_model(model_path)
-class_names = ["ai", "real"]
+project_root = Path.cwd()
+model = tf.keras.models.load_model(
+    project_root / "best_models" / "best_hybrid_model.keras",
+    custom_objects={"FFTLayer": FFTLayer}
+)
 
-img = Image.open(test_image_path).convert("RGB").resize((224, 224))
+# Test görselini yükle (Gemini'den ürettiğin kaplan)
+img = Image.open(project_root / "test_image_real.jpg").convert("RGB").resize((224, 224))
 img_array = np.expand_dims(np.array(img, dtype=np.float32), axis=0)
 
 pred = model.predict(img_array, verbose=0)[0][0]
+class_names = ["ai", "real"]  # alfabetik
 label = class_names[int(pred > 0.5)]
 confidence = pred if pred > 0.5 else 1 - pred
 
 print(f"Raw output: {pred:.4f}")
-print(f"Prediction: {label} ({confidence*100:.2f}%)")
+print(f"Prediction: {label}")
+print(f"Confidence: {confidence*100:.2f}%")
