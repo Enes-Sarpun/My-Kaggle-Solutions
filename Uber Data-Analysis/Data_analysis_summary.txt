@@ -1,0 +1,10 @@
+
+Data Analysis Reports;
+1.Dataset Overview:
+    Total Records:150000
+    Total Features:21
+    No missing or duplicate values found.         
+    Duplicate:0
+
+Outliers Summary:
+    - Features with %5>outliers: 3
