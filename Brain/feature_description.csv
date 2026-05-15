@@ -1,0 +1,28 @@
+feature,description
+std,Standard deviation of normalized pixel intensities (global contrast)
+min,Minimum normalized pixel intensity (background level)
+max,Maximum normalized pixel intensity (brightest tissue)
+median,Median normalized pixel intensity
+contrast,GLCM contrast measuring local intensity variation (texture heterogeneity)
+energy,GLCM energy measuring texture uniformity
+homogeneity,GLCM homogeneity measuring closeness of pixel pairs
+correlation,GLCM correlation measuring spatial dependency of pixels
+fft_mean,Mean magnitude of Fourier spectrum (global frequency content)
+fft_std,Standard deviation of Fourier magnitude spectrum
+fft_energy,Total energy in frequency domain
+fft_max,Maximum magnitude in Fourier spectrum
+edge_density,Fraction of pixels detected as edges
+edge_count,Total number of edge pixels
+edge_strength,Sum of edge pixel intensities
+lbp_0,LBP histogram bin 0 (flat local patterns)
+lbp_1,LBP histogram bin 1
+lbp_2,LBP histogram bin 2
+lbp_3,LBP histogram bin 3
+lbp_4,LBP histogram bin 4
+lbp_5,LBP histogram bin 5
+lbp_6,LBP histogram bin 6
+lbp_7,LBP histogram bin 7
+lbp_8,LBP histogram bin 8 (uniform texture patterns)
+lbp_9,LBP histogram bin 9 (non-uniform patterns)
+label,Class label of MRI image
+image,Original image filename
