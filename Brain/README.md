@@ -25,7 +25,7 @@ Images are resized to **150×150 px**, split 80/20 for training/validation.
 
 | Sample 1 | Sample 2 |
 |----------|----------|
-| ![Glioma 1](../Sample_Brain_Images/glioma/0000.jpg) | ![Glioma 2](../Sample_Brain_Images/glioma/0001.jpg) |
+| ![Glioma 1](Sample_Brain_Images/glioma/0000.jpg) | ![Glioma 2](Sample_Brain_Images/glioma/0001.jpg) |
 
 ---
 
@@ -34,7 +34,7 @@ Images are resized to **150×150 px**, split 80/20 for training/validation.
 
 | Sample 1 | Sample 2 |
 |----------|----------|
-| ![Meningioma 1](../Sample_Brain_Images/meningioma/0000.jpg) | ![Meningioma 2](../Sample_Brain_Images/meningioma/0001.jpg) |
+| ![Meningioma 1](Sample_Brain_Images/meningioma/0000.jpg) | ![Meningioma 2](Sample_Brain_Images/meningioma/0001.jpg) |
 
 ---
 
@@ -43,7 +43,7 @@ Images are resized to **150×150 px**, split 80/20 for training/validation.
 
 | Sample 1 | Sample 2 |
 |----------|----------|
-| ![Healthy 1](../Sample_Brain_Images/healthy/0000.jpg) | ![Healthy 2](../Sample_Brain_Images/healthy/0001.jpg) |
+| ![Healthy 1](Sample_Brain_Images/healthy/0000.jpg) | ![Healthy 2](Sample_Brain_Images/healthy/0001.jpg) |
 
 ---
 
@@ -52,7 +52,7 @@ Images are resized to **150×150 px**, split 80/20 for training/validation.
 
 | Sample 1 | Sample 2 |
 |----------|----------|
-| ![Pituitary 1](../Sample_Brain_Images/pituitary/0000.jpg) | ![Pituitary 2](../Sample_Brain_Images/pituitary/0001.jpg) |
+| ![Pituitary 1](Sample_Brain_Images/pituitary/0000.jpg) | ![Pituitary 2](Sample_Brain_Images/pituitary/0001.jpg) |
 
 ---
 
@@ -142,5 +142,5 @@ scikit-learn
 
 ```bash
 # Place dataset in project root as brain_tumor_dataset/
-python brain_img.py
+python "Python Files/brain_img.py"
 ```
